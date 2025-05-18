@@ -16,15 +16,19 @@ Opcje:
         - data utworzenia.
   --error, -e [LICZBA]
       Tworzy LICZBA katalogów errorX (domyślnie 100), a w każdym plik errorX.txt
-      z analogicznymi informacjami.
+      z tymi samymi informacjami co dla log*.  
+  --init, -i
+      Klonuje całe repozytorium (z remote origin) do bieżącego katalogu
+      i dopisuje ten katalog na początku \$PATH w ~/.bashrc lub ~/.zshrc.
 
 Przykłady:
-  $(basename "$0") --help
-  $(basename "$0") -d
+  $(basename "$0") --date
+  $(basename "$0") -l 50
   $(basename "$0") --logs
-  $(basename "$0") -l 30
-  $(basename "$0") -e
-  $(basename "$0") --error 50
+  $(basename "$0") -e 30
+  $(basename "$0") --error
+  $(basename "$0") -i
+  $(basename "$0") --help
 EOF
   exit 1
 }
