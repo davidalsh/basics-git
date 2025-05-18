@@ -5,38 +5,49 @@ show_usage() {
 Użycie: $(basename "$0") [OPCJA] [ARGUMENT]
 
 Opcje:
-  --date           Wyświetla dzisiejszą datę.
-  --logs [LICZBA]  Tworzy LICZBA plików logX.txt (domyślnie 100).
-  --help           Wyświetla tę pomoc.
+  --help, -h
+      Wyświetla tę pomoc.
+  --date, -d
+      Wyświetla dzisiejszą datę.
+  --logs, -l [LICZBA]
+      Tworzy LICZBA plików logX.txt (domyślnie 100) z informacjami:
+        - nazwa pliku,
+        - nazwa skryptu,
+        - data utworzenia.
+  --error, -e [LICZBA]
+      Tworzy LICZBA katalogów errorX (domyślnie 100), a w każdym plik errorX.txt
+      z analogicznymi informacjami.
 
 Przykłady:
-  $(basename "$0") --date
-  $(basename "$0") --logs
-  $(basename "$0") --logs 30
   $(basename "$0") --help
+  $(basename "$0") -d
+  $(basename "$0") --logs
+  $(basename "$0") -l 30
+  $(basename "$0") -e
+  $(basename "$0") --error 50
 EOF
   exit 1
 }
 
-# jeśli brak argumentu lub więcej niż 2 — pokaż pomoc
+# sprawdzenie liczby argumentów
 if [[ $# -lt 1 || $# -gt 2 ]]; then
   show_usage
 fi
 
 case "$1" in
-  --date)
+  --help|-h)
+    show_usage
+    ;;
+
+  --date|-d)
     date
     ;;
 
-  --logs)
-    # ustalenie liczby plików (domyślnie 100)
+  --logs|-l)
+    # ustawienie liczby plików
     if [[ $# -eq 2 ]]; then
-      if [[ "$2" =~ ^[1-9][0-9]*$ ]]; then
-        count=$2
-      else
-        echo "Błąd: drugi argument musi być dodatnią liczbą całkowitą."
-        exit 1
-      fi
+      [[ "$2" =~ ^[1-9][0-9]*$ ]] || { echo "Błąd: liczba plików musi być dodatnią liczbą." >&2; exit 1; }
+      count=$2
     else
       count=100
     fi
@@ -47,14 +58,31 @@ case "$1" in
         echo "Nazwa pliku: ${filename}"
         echo "Nazwa skryptu: $(basename "$0")"
         echo "Data utworzenia: $(date '+%Y-%m-%d %H:%M:%S')"
-      } > "${filename}"
+      } > "$filename"
     done
-
     echo "Utworzono ${count} plików log*.txt"
     ;;
 
-  --help)
-    show_usage
+  --error|-e)
+    # ustawienie liczby katalogów i plików
+    if [[ $# -eq 2 ]]; then
+      [[ "$2" =~ ^[1-9][0-9]*$ ]] || { echo "Błąd: liczba katalogów musi być dodatnią liczbą." >&2; exit 1; }
+      count=$2
+    else
+      count=100
+    fi
+
+    for i in $(seq 1 "$count"); do
+      dir="error${i}"
+      mkdir -p "$dir"
+      filename="${dir}/error${i}.txt"
+      {
+        echo "Nazwa pliku: $(basename "$filename")"
+        echo "Nazwa skryptu: $(basename "$0")"
+        echo "Data utworzenia: $(date '+%Y-%m-%d %H:%M:%S')"
+      } > "$filename"
+    done
+    echo "Utworzono ${count} katalogów error* z plikami error*.txt"
     ;;
 
   *)
