@@ -5,36 +5,38 @@ show_usage() {
 Użycie: $(basename "$0") [OPCJA] [ARGUMENT]
 
 Opcje:
-  --date           Wyświetla dzisiejszą datę.
-  --logs [LICZBA]  Tworzy LICZBA plików logX.txt (domyślnie 100).
-  --help           Wyświetla tę pomoc.
+  --date, -d           Wyświetla dzisiejszą datę.
+  --logs, -l [LICZBA]  Tworzy LICZBA plików logX.txt (domyślnie 100).
+  --help, -h           Wyświetla tę pomoc.
 
 Przykłady:
   $(basename "$0") --date
+  $(basename "$0") -d
   $(basename "$0") --logs
+  $(basename "$0") -l
   $(basename "$0") --logs 30
+  $(basename "$0") -l 30
   $(basename "$0") --help
+  $(basename "$0") -h
 EOF
   exit 1
 }
 
-# jeśli brak argumentu lub więcej niż 2 — pokaż pomoc
 if [[ $# -lt 1 || $# -gt 2 ]]; then
   show_usage
 fi
 
 case "$1" in
-  --date)
+  --date|-d)
     date
     ;;
 
-  --logs)
-    # ustalenie liczby plików (domyślnie 100)
+  --logs|-l)
     if [[ $# -eq 2 ]]; then
       if [[ "$2" =~ ^[1-9][0-9]*$ ]]; then
         count=$2
       else
-        echo "Błąd: drugi argument musi być dodatnią liczbą całkowitą."
+        echo "Błąd: argument liczby plików musi być dodatnią liczbą całkowitą."
         exit 1
       fi
     else
@@ -53,7 +55,7 @@ case "$1" in
     echo "Utworzono ${count} plików log*.txt"
     ;;
 
-  --help)
+  --help|-h)
     show_usage
     ;;
 
