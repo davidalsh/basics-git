@@ -57,6 +57,31 @@ case "$1" in
     show_usage
     ;;
 
+  --init|-i)
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    REMOTE_URL="$(git -C "$SCRIPT_DIR" config --get remote.origin.url)" \
+      || { echo "Nie udało się pobrać URL z remote.origin." >&2; exit 1; }
+
+    git clone "$REMOTE_URL" . \
+      || { echo "Błąd podczas klonowania $REMOTE_URL do $(pwd)." >&2; exit 1; }
+
+    case "$(basename "$SHELL")" in
+      zsh)   PROFILE="$HOME/.zshrc" ;;
+      *)     PROFILE="$HOME/.bashrc" ;;
+    esac
+
+    ENTRY="export PATH=\"$(pwd):\$PATH\""
+    if ! grep -Fxq "$ENTRY" "$PROFILE"; then
+      echo -e "\n# dodane przez skrypt.sh --init" >> "$PROFILE"
+      echo    "$ENTRY"         >> "$PROFILE"
+      echo "Dodano '$(pwd)' do \$PATH w $PROFILE"
+      echo "Aby zmiany zadziałały, uruchom ponownie terminal lub wykonaj:"
+      echo "  source $PROFILE"
+    else
+      echo "Katalog '$(pwd)' już znajduje się w \$PATH w $PROFILE"
+    fi
+    ;;
+
   *)
     show_usage
     ;;
